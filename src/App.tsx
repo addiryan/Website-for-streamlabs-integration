@@ -4,6 +4,7 @@ import { GiphyFetch } from "@giphy/js-fetch-api";
 import { IGif } from "@giphy/js-types";
 import { Gif, Grid, Carousel } from "@giphy/react-components";
 import { useAsync } from "react-async-hook";
+import * as textStyles from "./styles/TextStyles"
 import ResizeObserver from "react-resize-observer";
 var fs = require('fs');
 
@@ -34,28 +35,27 @@ function checkResponseStatus(res:any) {
 }
 
 
-function CarouselDemo() {
+function CarouselDemo(props:InputPropsMinimal) {
   var params = new URLSearchParams();
   params.append("access_token", "5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y");
   params.append("type", "donation");
-
-  params.append("message", "this stream is really cool");
+  params.append("message", "*"+props.nickname+"*");
+  params.append("user_message", props.message);
   params.append("duration", "6000");
   
   const url:string = "https://streamlabs.com/api/v1.0/alerts"
 
-  const body:string= 'access_token=5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y&type=donation&image_href=https://media.giphy.com/media/gd09Y2Ptu7gsiPVUrv/giphy-downsized.gif&message=I love fishsticks&duration=6000' 
   const onGifClick:any = (gif:any, e:any) => {
-  params.append("image_href",gif.images.downsized.url);
-
-	console.log("gif",gif);
+  params.append("image_href",gif.images.original.url);
 	e.preventDefault();
 	fetch(url, {
-          method: 'POST',
-    	  //mode: "no-cors",
+      method: 'POST',
    	  body: params,
    	  headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
-	});//).then(checkResponseStatus);
+    }
+  )
+  .then(checkResponseStatus)
+  .then((err:any)=> console.log(err));//).then(checkResponseStatus);
 
   }
   const fetchGifs = (offset: number) =>
@@ -89,36 +89,71 @@ function CarouselDemo() {
 
 
 
-class MyHeader extends React.Component {
-   render() {
-      const headerStyle: React.CSSProperties = {
-        padding: "60px",
-  	textAlign: "center",
-  	background: "#1abc9c",
-  	color: "white",
-  	fontSize: "30px",
-      }
-     return (
-       <div style={headerStyle}>
-         <h1>DangleHank, the website</h1>
-	 <p>Click any gif to send it directly to my stream!</p>
-       </div>
-     )
-   }
+function MyHeader (props:InputPropsWithUpdate) {
+ 
+  const headerStyle: React.CSSProperties = {
+    padding: "60px",
+    textAlign: "center",
+    background: "#1abc9c",
+    color: "white",
+    fontSize: "30px"
+  }
+    
+    return (
+      <>
+      <div style={headerStyle}>
+        <h1>DangleHank, the website</h1>
+        <p>Click any gif to send it directly to my stream!</p>
+        <div className="input_message" style={textStyles.inputArea}>
+            <input type="text" value={props.nickname} onChange={e=> props.onChangeNickname(e.target.value)} style={textStyles.inputNickname} id="inputNickname" placeholder="Nickname"/>
+            <textarea style={textStyles.inputMessage} value={props.message} onChange={e=> props.onChangeMessage(e.target.value)} id="inputMessage" placeholder="Message" maxLength={155}/>
+        </div>
+      </div>
+    </>
+    )
+  }
+
+
+interface InputPropsWithUpdate {
+  nickname:string,
+  message:string,
+  onChangeNickname(name:string): any,
+  onChangeMessage(message:string): any
 }
 
-
+interface InputPropsMinimal {
+  nickname:string,
+  message:string
+}
 
 function App() {
-  const [modalGif, setModalGif] = useState();
+  const [nickname, setNickname] = React.useState("");
+  const [message, setMessage] = React.useState("");
+  function updateNickname(name:string) {
+    setNickname(name);
+  }
+
+  function updateMessage(message:string) {
+    setMessage(message)
+  }
+  
+  const appStyle:React.CSSProperties = {
+    background:"linear-gradient(to right,#2c5364, #203a43, #0f2027)"
+  }
+  
   return (
     <>
-      <MyHeader />
-      <h4>Gif</h4>
-      <GifDemo/>
-      <h4>Carousel</h4>
-      <CarouselDemo />
-      
+      <MyHeader nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
+      {/* <div className="input_message" style={textStyles.inputArea}>
+        <input type="text" style={textStyles.inputNickname} id="name" placeholder="Nickname"/>
+        <textarea style={textStyles.inputMessage} id="message" placeholder="Message" maxLength={155}/>
+      </div> */}
+      <div style={appStyle}>
+        <GifDemo/>
+        <>
+        </>
+        <CarouselDemo nickname={nickname} message={message}/>  
+      </div>  
     </>
   );
 }
