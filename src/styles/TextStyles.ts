@@ -1,5 +1,5 @@
 
-export const formLabel = {
+export const formLabel:React.CSSProperties = {
     fontFamily: 'Roboto, sans-serif',
     fontSize: "1.2rem",
     marginLeft: "2rem",
@@ -11,12 +11,12 @@ export const formLabel = {
 
 export const inputNickname:React.CSSProperties = {
     fontFamily: 'Roboto, sans-serif',
-    color:"#333",
+    color:"black",
     fontSize:"1.2rem",
     margin:"0 auto",
     padding:"1.5rem 2rem",
     borderRadius: "0.2rem",
-    backgroundColor:"rgb(255, 255, 255)",
+    // backgroundColor:"rgb(255, 255, 255)",
     border:"none",
     width:"20%",
     display:"block",
@@ -26,30 +26,26 @@ export const inputNickname:React.CSSProperties = {
 
 export const inputMessage:React.CSSProperties = {
     fontFamily: 'Roboto, sans-serif',
-    color:"#333",
     fontSize:"1.2rem",
-    margin:"0px auto",
     padding:"1.5rem 2rem",
     borderRadius: "0.2rem",
-    backgroundColor:"rgb(255, 255, 255)",
     alignContent:"start",
     textAlign:"start",
     border:"none",
     width:"20%",
-    height:"40%",
+    height:"60%",
+    color:"black",
     display:"block",
     borderBottom:"0.3rem solid transparent",
     transition:"all 0.3s"
 }
 
 export const inputArea:React.CSSProperties = {
-    height: "25vh",
+    height: "10vh",
 	width: "100%",
-    // background: "linear-gradient(to right,#2c5364, #203a43, #0f2027)",
-    background: "#1abc9c",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
     alignItems: "center",
-    color: "#fff"
+    color: "black"
 }
