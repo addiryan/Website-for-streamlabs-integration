@@ -20,6 +20,8 @@ steps:
     - yarn --version
     - yarn
     - yarn build
+  environment:
+    CI: false
 - name: deploy
   image: appleboy/drone-ssh
   pull: true
