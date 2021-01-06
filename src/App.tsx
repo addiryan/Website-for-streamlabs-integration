@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { render } from "react-dom";
+import React, { useState} from "react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import { IGif } from "@giphy/js-types";
-import { Gif, Grid, Carousel } from "@giphy/react-components";
-import { useAsync } from "react-async-hook";
+import { Grid, Carousel } from "@giphy/react-components";
 import * as textStyles from "./styles/TextStyles"
 import * as appStyles from "./styles/AppStyle"
 import ResizeObserver from "react-resize-observer";
@@ -73,10 +71,6 @@ function TrendingCarousel(props:CarouselProps) {
 
 
 function QueryGrid(props:CarouselProps) {
-  console.error(props.query)
-  useEffect( () => {
-    console.log('counter updated');
-})
 
   const fetchGifs = (offset: number) =>
     giphyFetch.search(props.query? props.query: "happy", { offset, limit: 9 });
@@ -91,6 +85,7 @@ function QueryGrid(props:CarouselProps) {
     <>
       <Grid
         onGifClick={onGifClick}
+        key={props.query}
         fetchGifs={fetchGifs}
         width={width}
         columns={3}
