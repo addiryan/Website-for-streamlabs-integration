@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+[![Build Status](https://drone.schleppe.cloud/api/badges/addiryan/Website-for-streamlabs-integration/status.svg)](https://drone.schleppe.cloud/addiryan/Website-for-streamlabs-integration)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

@@ -1,0 +1,58 @@
+---
+kind: pipeline
+type: docker
+name: memestream
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: frontend_install
+  image: node:14
+  commands:
+    - node -v
+    - yarn --version
+- name: backend_build
+  image: node:14
+  commands:
+    - node -v
+    - yarn --version
+    - yarn
+    - yarn build
+  environment:
+    CI: false
+- name: deploy
+  image: appleboy/drone-ssh
+  pull: true
+  secrets:
+    - ssh_key
+    - host_address
+    - user
+  when:
+    event:
+      - push
+    branch:
+      - main
+      - drone-test
+    status: success
+  settings:
+    host:
+      from_secret: host_address
+    username:
+      from_secret: user
+    key:
+      from_secret: ssh_key
+    command_timeout: 600s
+    script:
+      - /root/memestream-deploy.sh
+
+trigger:
+  branch:
+    - main
+  event:
+    include:
+      - pull_request
+      - push 
+
+
