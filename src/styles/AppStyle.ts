@@ -12,3 +12,8 @@ export const mainArea:React.CSSProperties = {
     textAlign:"center",
     color:"white"
 }
+
+export const queryGrid:React.CSSProperties = {
+    paddingLeft:"25%",
+    paddingTop:"2rem"
+}

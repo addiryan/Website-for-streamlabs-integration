@@ -83,19 +83,22 @@ function QueryGrid(props:CarouselProps) {
   }
   return (
     <>
-      <Grid
-        onGifClick={onGifClick}
-        key={props.query}
-        fetchGifs={fetchGifs}
-        width={width}
-        columns={3}
-        gutter={6}
-      />
-      <ResizeObserver
-        onResize={({ width }) => {
-          setWidth(width);
-        }}
-      />
+      <div style={appStyles.queryGrid}>
+        <Grid
+          onGifClick={onGifClick}
+          key={props.query}
+          fetchGifs={fetchGifs}
+          width={width/2}
+          columns={4}
+          gutter={6}
+         />
+      </div>
+        <ResizeObserver
+          onResize={({ width }) => {
+            setWidth(width);
+          }}
+        />
+      
     </>
   );
 }
@@ -165,9 +168,7 @@ function App() {
         <TrendingCarousel nickname={nickname} message={message}/>
         <h2>or scroll through your own desired search term</h2>
         <img src="https://uploads.codesandbox.io/uploads/user/ce4856ba-2d28-467b-98d7-427cebc27616/ZZBX-logo.gif" width="200" alt="Powered by GIPHY" /> 
-        <form className="input_query" style={textStyles.inputArea}>  
-            <input type="text" onChange={e=> updateQuery(e.target.value)} style={textStyles.inputNickname} id="inputQuery" placeholder="happy"/>
-        </form>
+        <input type="text" onChange={e=> updateQuery(e.target.value)} style={textStyles.inputNickname} id="inputQuery" placeholder="happy"/>
         <QueryGrid nickname={nickname} message={message} query={query}/>
       </div>  
     </>
