@@ -5,7 +5,15 @@ import { Grid, Carousel } from "@giphy/react-components";
 import * as textStyles from "./styles/TextStyles"
 import * as appStyles from "./styles/AppStyle"
 import ResizeObserver from "react-resize-observer";
-var fs = require('fs');
+import Bottleneck from "bottleneck"
+
+ 
+// Never more than 5 requests running at a time.
+// Wait at least 20s between each request.
+const limiter = new Bottleneck({
+ maxConcurrent: 1,
+ minTime: 20000
+});
 
 var fetch = require('node-fetch');
 
@@ -37,14 +45,22 @@ function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTML
     params.append("duration", "6000");
     params.append("image_href",gif.images.original.mp4);
     e.preventDefault();
-    fetch(url, {
-        method: 'POST',
-        body: params,
-        headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
-      }
-    )
-    .then(checkResponseStatus)
-    .then((err:any)=> console.log(err));//).then(checkResponseStatus);
+
+    //Checks that some time has gone since last request. Rate limiting
+     limiter.check()
+    .then((wouldRunNow) => {
+      // console.log(wouldRunNow)
+      if(wouldRunNow) {
+        limiter.schedule(() => fetch(url, {
+          method: 'POST',
+          body: params,
+          headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
+          
+        }
+      )).then(checkResponseStatus)
+        .then((err:any)=> console.log(err));//).then(checkResponseStatus);
+      } 
+    }); 
 }
 
 function QueryCarousel(props:CarouselProps) {
