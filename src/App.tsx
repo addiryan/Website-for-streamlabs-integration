@@ -37,13 +37,14 @@ function checkResponseStatus(res:any) {
 
 function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) {
   const url:string = "https://streamlabs.com/api/v1.0/alerts"
+  let gif_url:string = gif.images.original.mp4.includes("?") ? gif.images.original.mp4.split("?")[0] : gif.images.original.mp4
     var params = new URLSearchParams();
     params.append("access_token", "5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y");
     params.append("type", "donation");
     params.append("message", props.nickname!="" ? "*"+props.nickname+"*" : "secret admirer");
     params.append("user_message", props.message!="" ? props.message : "love your stream");
     params.append("duration", "6000");
-    params.append("image_href",gif.images.original.mp4);
+    params.append("image_href",gif_url);
     e.preventDefault();
 
     //Checks that some time has gone since last request. Rate limiting
