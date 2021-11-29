@@ -9,12 +9,12 @@ platform:
 
 steps:
 - name: frontend_install
-  image: node:14
+  image: node:16
   commands:
     - node -v
     - yarn --version
 - name: backend_build
-  image: node:14
+  image: node:16
   commands:
     - node -v
     - yarn --version
