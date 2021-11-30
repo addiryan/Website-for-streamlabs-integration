@@ -6,6 +6,7 @@ import * as textStyles from "./styles/TextStyles"
 import * as appStyles from "./styles/AppStyle"
 import ResizeObserver from "react-resize-observer";
 import Bottleneck from "bottleneck"
+import Swal, { SweetAlertResult } from 'sweetalert2'
 
  
 // Never more than 5 requests running at a time.
@@ -26,42 +27,93 @@ const randomInputMessage = messageTemplates[Math.floor(Math.random()*messageTemp
 
 
 
-function checkResponseStatus(res:any) {
-    if(res.ok){
-        return res
-    } else {
-        console.log(`The HTTP status of the reponse: ${res.status} (${res.statusText})`);
-    }
-}
+// function checkResponseStatus(res:any) {
+//     if(res.ok){
+//         return res
+//     } else {
+//         console.log(`The HTTP status of the reponse: ${res.status} (${res.statusText})`);
+//     }
+// }
 
+
+const sendToStreamButtons = Swal.mixin({
+  customClass: {
+    confirmButton: 'btn btn-success',
+    cancelButton: 'btn btn-danger'
+  },
+  buttonsStyling: true
+})
+
+
+function selectionConfirmed(nickname:string, message:string, gifUrl:string):Promise<SweetAlertResult<any>> {
+  return sendToStreamButtons.fire({
+    title: `Nickname: ${nickname}`,
+    text: `Message: ${message}`,
+    showCancelButton:true, 
+    confirmButtonText:"Send to stream!",
+    cancelButtonText:"Cancel",
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    width: 600,
+    padding: '3em',
+    backdrop: `
+      url("${gifUrl}")
+      center top
+      no-repeat
+    `
+  }).then((result) => {
+    return result
+  })
+}
 
 function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) {
   const url:string = "https://streamlabs.com/api/v1.0/alerts"
   let gif_url:string = gif.images.original.mp4.includes("?") ? gif.images.original.mp4.split("?")[0] : gif.images.original.mp4
-    var params = new URLSearchParams();
-    params.append("access_token", "5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y");
-    params.append("type", "donation");
-    params.append("message", props.nickname!="" ? "*"+props.nickname+"*" : "secret admirer");
-    params.append("user_message", props.message!="" ? props.message : "love your stream");
-    params.append("duration", "6000");
-    params.append("image_href",gif_url);
-    e.preventDefault();
-
-    //Checks that some time has gone since last request. Rate limiting
-     limiter.check()
-    .then((wouldRunNow) => {
-      // console.log(wouldRunNow)
-      if(wouldRunNow) {
-        limiter.schedule(() => fetch(url, {
-          method: 'POST',
-          body: params,
-          headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
-          
-        }
-      )).then(checkResponseStatus)
-        .then((err:any)=> console.log(err));//).then(checkResponseStatus);
-      } 
-    }); 
+  let gif_url_popup:string = gif.images.original.url.includes("?") ? gif.images.original.url.split("?")[0] : gif.images.original.url
+  let nickname:string = props.nickname!="" ? "*"+props.nickname+"*" : "secret admirer"
+  let message:string = props.message!="" ? props.message : "love your stream"
+  var params = new URLSearchParams();
+  params.append("access_token", "5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y");
+  params.append("type", "donation");
+  params.append("message", nickname);
+  params.append("user_message", message);
+  params.append("duration", "6000");
+  params.append("image_href",gif_url);
+  e.preventDefault();
+  
+  selectionConfirmed(nickname, message, gif_url_popup).then(res=> {
+    if(res.value===true) {
+      //Checks that some time has gone since last request. Rate limiting
+      sendToStreamButtons.fire(
+        'Successfully sent to stream!',
+        'Expect some delay',
+        'success'
+      )
+      limiter.check()
+      .then((wouldRunNow) => {
+        // console.log(wouldRunNow)
+        if(wouldRunNow) {
+          limiter.schedule(() => fetch(url, {
+            method: 'POST',
+            body: params,
+            headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
+            
+          }
+        )).then((res:any)=> {
+          if(res.ok) {
+    
+          } else {
+            throw new Error(res)
+          }
+        }).then((err:any)=> console.log(err));//).then(checkResponseStatus);
+        } else {
+          Swal.fire(
+            'Timeout',
+            'Please wait a bit before sending a new gif')
+        } 
+      }); 
+    }
+  })
 }
 
 function QueryCarousel(props:CarouselProps) {
