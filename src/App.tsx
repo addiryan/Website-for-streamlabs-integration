@@ -226,10 +226,21 @@ function App() {
   function updateQuery(query:string) {
     setQuery(query)
   }
+
+  function sendAuthRequest() {
+    // https://streamlabs.com/api/v1.0/authorize?client_id=t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe&redirect_uri=https://memestream.schleppe.cloud&scope=donations.create
+    const url = new URL('https://streamlabs.com/api/v1.0/authorize')
+    url.searchParams.append('response_type', 'code')
+    url.searchParams.append('client_id', "t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe")
+    url.searchParams.append('redirect_uri', 'http://localhost:3001/auth_request')
+    url.searchParams.append('scope', 'donations.create')
+    window.open(url.href.toString())
+  }
   
   return (
     <>
       <MyHeader nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
+      <button className="auth_button" style={textStyles.inputArea} onClick={sendAuthRequest}/>  
       <div style={appStyles.mainArea}>
         <h2>Then click one of these cool dogs...</h2>
         <QueryCarousel nickname={nickname} message={message} query="dogs"/>
