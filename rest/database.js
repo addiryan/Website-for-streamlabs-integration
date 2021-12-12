@@ -6,9 +6,10 @@ const database = new Sequelize({
   storage: './test.sqlite'
 })
 
-const auth = database.define('auth', {
-  accountName: Sequelize.STRING,
-  authToken: Sequelize.STRING
+const auth_endpoint_database = database.define('auth', {
+  username: Sequelize.STRING,
+  nickname: Sequelize.STRING,
+  auth_token: Sequelize.STRING
   //timestamp?
 })
 
@@ -18,11 +19,38 @@ const initializeDatabase = async (app) => {
   finale.initialize({ app, sequelize: database })
 
   finale.resource({
-    model: auth,
-    endpoints: ['/auth', '/auth/:accountName']
+    model: auth_endpoint_database,
+    endpoints: ['/auth', '/auth/:username']
   })
 
   await database.sync()
 }
 
-module.exports = initializeDatabase
+const insertEntry = async (username, nickname, access_token) => {
+  const [account, created] = await auth_endpoint_database.findOrCreate({
+    where: {username:username},
+    defaults:{nickname:nickname, auth_token:access_token}
+  })
+  if(created===false) {
+    //Already exists, add new token...
+    auth_endpoint_database.update(
+      {nickname:nickname,auth_token:access_token},
+      {
+        where:{
+          username:username
+        }
+      }).then(()=> {
+      console.log("updated entry for: ", nickname)
+    }).catch(err=> {
+      console.error("something went wrong when updating record: ", err)
+    })
+  } else {
+    console.log(`Inserted new entry for ${username}`)
+  }
+}
+
+
+module.exports = {
+  initializeDatabase: initializeDatabase,
+  insertEntry: insertEntry,
+};

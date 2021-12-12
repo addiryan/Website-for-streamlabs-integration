@@ -1,5 +1,5 @@
 import React from 'react';
-// import {BrowserRouter as Router,Switch,Route,Link} from "react-router-dom";
+import {BrowserRouter as Router,Route,Routes, Link} from "react-router-dom";
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -7,7 +7,22 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route path=":username" element={<App />}/>
+        </Route>
+        
+        <Route path="*"
+        element={
+          <main style={{ padding: "1rem" }}>
+            <p>There's nothing here!</p>
+          </main>
+        }
+        />
+      </Routes>
+      {/* <App /> */}
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

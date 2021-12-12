@@ -1,4 +1,5 @@
 import React, { useState} from "react";
+import { useParams } from "react-router-dom";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import { IGif } from "@giphy/js-types";
 import { Grid, Carousel } from "@giphy/react-components";
@@ -181,7 +182,7 @@ function MyHeader (props:InputPropsWithUpdate) {
     return (
       <>
       <div style={appStyles.genericHeader}>
-        <h1>The Meme Stream</h1>
+        <h1>{props.username ? props.username+"'s Meme Stream": "The Meme Stream"}!</h1>
         {/* <p>Click any gif to send it directly to my stream!</p> */}
         <p style={textStyles.formLabel} >Just insert your nickname</p>
         <div className="input_nickname" style={textStyles.inputArea}>  
@@ -198,6 +199,7 @@ function MyHeader (props:InputPropsWithUpdate) {
 
 
 interface InputPropsWithUpdate {
+  username:string | undefined,
   nickname:string,
   message:string,
   onChangeNickname(name:string): any,
@@ -214,6 +216,7 @@ function App() {
   const [nickname, setNickname] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [query, setQuery] = React.useState("happy")
+  let params = useParams();
 
   function updateNickname(name:string) {
     setNickname(name);
@@ -239,7 +242,7 @@ function App() {
   
   return (
     <>
-      <MyHeader nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
+      <MyHeader username={params.username} nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
       <button className="auth_button" style={textStyles.inputArea} onClick={sendAuthRequest}/>  
       <div style={appStyles.mainArea}>
         <h2>Then click one of these cool dogs...</h2>
