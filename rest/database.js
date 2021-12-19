@@ -26,6 +26,21 @@ const initializeDatabase = async (app) => {
   await database.sync()
 }
 
+const getRegisteredUsers = async () => {
+  return await auth_endpoint_database.findAll({
+    attributes: ['nickname']
+  }).then(rows => {
+    // [{datavalues:{nickname:"...."}}]
+    return rows.map(row => {
+      return row.dataValues.nickname
+    })
+  }).catch(err => {return []});
+}
+
+const getAuthKeyForStreamer = async (streamername) => {
+  return await auth_endpoint_database.findOne({ where: { nickname: streamername } });
+}
+
 const insertEntry = async (username, nickname, access_token) => {
   const [account, created] = await auth_endpoint_database.findOrCreate({
     where: {username:username},
@@ -53,4 +68,6 @@ const insertEntry = async (username, nickname, access_token) => {
 module.exports = {
   initializeDatabase: initializeDatabase,
   insertEntry: insertEntry,
+  getRegisteredUsers, getRegisteredUsers,
+  getAuthKeyForStreamer, getAuthKeyForStreamer
 };

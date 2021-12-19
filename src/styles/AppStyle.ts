@@ -1,10 +1,25 @@
+import React from "react"
+
 export const genericHeader:React.CSSProperties = {
-    padding: "60px",
+    padding: "30px",
     textAlign: "center",
     background: "linear-gradient(217deg, rgba(0,0,0,.8), rgba(2,0,0,0) 100.71%),#1abc9c",
     color: "white",
     fontSize: "30px"
 }
+export const home:React.CSSProperties = {
+    padding: "30px",
+    textAlign: "center",
+    background: "linear-gradient(217deg, rgba(0,0,0,.8), rgba(2,0,0,0) 100.71%),#1abc9c",
+    color: "white",
+    fontSize: "30px",
+    height:"100%"
+}
+
+export const homepageGrid:React.CSSProperties = {
+    margin:"auto"
+}
+
 
 export const mainArea:React.CSSProperties = {
     paddingTop:"2rem",

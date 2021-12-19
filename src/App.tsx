@@ -1,261 +1,40 @@
-import React, { useState} from "react";
-import { useParams } from "react-router-dom";
-import { GiphyFetch } from "@giphy/js-fetch-api";
-import { IGif } from "@giphy/js-types";
-import { Grid, Carousel } from "@giphy/react-components";
-import * as textStyles from "./styles/TextStyles"
-import * as appStyles from "./styles/AppStyle"
-import ResizeObserver from "react-resize-observer";
-import Bottleneck from "bottleneck"
-import Swal, { SweetAlertResult } from 'sweetalert2'
+import React, { useState, useEffect}from "react";
+import {BrowserRouter as Router,Route,Routes,Link} from "react-router-dom";
+import Home from "./Home";
+import StreamerPage from "./StreamerPage";
 
- 
-// Never more than 5 requests running at a time.
-// Wait at least 20s between each request.
-const limiter = new Bottleneck({
- maxConcurrent: 1,
- minTime: 20000
-});
-
-var fetch = require('node-fetch');
-
-
-//const giphyFetch = new GiphyFetch("uqrylcebhFGgaMpRxqk7t2K71skX4F8W");
-const giphyFetch = new GiphyFetch("6fdEqnlWrtgJ0WYK8n2KACAjF7hzPvdU");
-const messageTemplates = ["Invading an Olaf like...","Getting killed by the support feels like...","When you die, but blame your support", "Feels bad", "Losing your lane feels like", "DEMACIA", "My mind is telling me no, BUT MY BODY..."]
-const randomInputMessage = messageTemplates[Math.floor(Math.random()*messageTemplates.length)]
-
-
-
-
-// function checkResponseStatus(res:any) {
-//     if(res.ok){
-//         return res
-//     } else {
-//         console.log(`The HTTP status of the reponse: ${res.status} (${res.statusText})`);
-//     }
-// }
-
-
-const sendToStreamButtons = Swal.mixin({
-  customClass: {
-    confirmButton: 'btn btn-success',
-    cancelButton: 'btn btn-danger'
-  },
-  buttonsStyling: true
-})
-
-
-function selectionConfirmed(nickname:string, message:string, gifUrl:string):Promise<SweetAlertResult<any>> {
-  return sendToStreamButtons.fire({
-    title: `Nickname: ${nickname}`,
-    text: `Message: ${message}`,
-    showCancelButton:true, 
-    confirmButtonText:"Send to stream!",
-    cancelButtonText:"Cancel",
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    width: 600,
-    padding: '3em',
-    backdrop: `
-      url("${gifUrl}")
-      center top
-      no-repeat
-    `
-  }).then((result) => {
-    return result
-  })
-}
-
-function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) {
-  const url:string = "https://streamlabs.com/api/v1.0/alerts"
-  let gif_url:string = gif.images.original.mp4.includes("?") ? gif.images.original.mp4.split("?")[0] : gif.images.original.mp4
-  let gif_url_popup:string = gif.images.original.url.includes("?") ? gif.images.original.url.split("?")[0] : gif.images.original.url
-  let nickname:string = props.nickname!="" ? "*"+props.nickname+"*" : "secret admirer"
-  let message:string = props.message!="" ? props.message : "love your stream"
-  var params = new URLSearchParams();
-  params.append("access_token", "5vei5Sequ6z5uYLgUNtTHGLI3Co4QhzENMUgab8Y");
-  params.append("type", "donation");
-  params.append("message", nickname);
-  params.append("user_message", message);
-  params.append("duration", "6000");
-  params.append("image_href",gif_url);
-  e.preventDefault();
-  
-  selectionConfirmed(nickname, message, gif_url_popup).then(res=> {
-    if(res.value===true) {
-      //Checks that some time has gone since last request. Rate limiting
-      sendToStreamButtons.fire(
-        'Successfully sent to stream!',
-        'Expect some delay',
-        'success'
-      )
-      limiter.check()
-      .then((wouldRunNow) => {
-        // console.log(wouldRunNow)
-        if(wouldRunNow) {
-          limiter.schedule(() => fetch(url, {
-            method: 'POST',
-            body: params,
-            headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
-            
-          }
-        )).then((res:any)=> {
-          if(res.ok) {
-    
-          } else {
-            throw new Error(res)
-          }
-        }).then((err:any)=> console.log(err));//).then(checkResponseStatus);
-        } else {
-          Swal.fire(
-            'Timeout',
-            'Please wait a bit before sending a new gif')
-        } 
-      }); 
-    }
-  })
-}
-
-function QueryCarousel(props:CarouselProps) {
-  
-  const onGifClick:any = (gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) => {
-    postToStream(props, gif, e)
-
-  }
-  const fetchGifs = (offset: number) =>
-    giphyFetch.search(props.query? props.query: "dogs", { offset, limit: 10 });
-  return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
-}
-
-function TrendingCarousel(props:CarouselProps) {
-  
-  const onGifClick:any = (gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) => {
-    postToStream(props, gif, e)
-
-  }
-  const fetchGifs = (offset: number) =>
-    giphyFetch.trending({ offset, limit: 10 });
-  return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
-}
-
-
-function QueryGrid(props:CarouselProps) {
-
-  const fetchGifs = (offset: number) =>
-    giphyFetch.search(props.query? props.query: "happy", { offset, limit: 9 });
-
-  const [width, setWidth] = useState(window.innerWidth);
-
-  const onGifClick:any = (gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) => {
-    postToStream(props, gif, e)
-
-  }
-  return (
-    <>
-      <div style={appStyles.queryGrid}>
-        <Grid
-          onGifClick={onGifClick}
-          key={props.query}
-          fetchGifs={fetchGifs}
-          width={width/2}
-          columns={4}
-          gutter={6}
-         />
-      </div>
-        <ResizeObserver
-          onResize={({ width }) => {
-            setWidth(width);
-          }}
-        />
-      
-    </>
-  );
-}
-
-
-
-
-
-function MyHeader (props:InputPropsWithUpdate) {
-        
-    return (
-      <>
-      <div style={appStyles.genericHeader}>
-        <h1>{props.username ? props.username+"'s Meme Stream": "The Meme Stream"}!</h1>
-        {/* <p>Click any gif to send it directly to my stream!</p> */}
-        <p style={textStyles.formLabel} >Just insert your nickname</p>
-        <div className="input_nickname" style={textStyles.inputArea}>  
-            <input type="text" value={props.nickname} onChange={e=> props.onChangeNickname(e.target.value)} style={textStyles.inputNickname} id="inputNickname" placeholder="Nickname"/>
-        </div>
-        <p style={textStyles.formLabel} >And write a funny caption</p>
-        <div className="input_message" style={textStyles.inputArea}>  
-          <textarea style={textStyles.inputMessage} value={props.message} onChange={e=> props.onChangeMessage(e.target.value)} id="inputMessage" placeholder={randomInputMessage} maxLength={155}/>  
-        </div>
-      </div>
-    </>
-    )
-  }
-
-
-interface InputPropsWithUpdate {
-  username:string | undefined,
-  nickname:string,
-  message:string,
-  onChangeNickname(name:string): any,
-  onChangeMessage(message:string): any
-}
-
-interface CarouselProps {
-  nickname:string,
-  message:string,
-  query?:string
-}
 
 function App() {
-  const [nickname, setNickname] = React.useState("");
-  const [message, setMessage] = React.useState("");
-  const [query, setQuery] = React.useState("happy")
-  let params = useParams();
+  let initRegisteredStreamers:string[] = []
+  const [registeredStreamers, setRegisteredStreamers] = useState(initRegisteredStreamers)
 
-  function updateNickname(name:string) {
-    setNickname(name);
-  }
+  useEffect(() =>{
+    fetch('http://localhost:3001/registered_streamers')
+      .then((response:any) => {
+        return response.json()})
+      .then((data:any) => setRegisteredStreamers(data["registeredStreamers"]))
+      .catch((err:any) => {
+        console.error("Could not fetch data....", err)
+      });
+  },[])
 
-  function updateMessage(message:string) {
-    setMessage(message)
-  }
-
-  function updateQuery(query:string) {
-    setQuery(query)
-  }
-
-  function sendAuthRequest() {
-    // https://streamlabs.com/api/v1.0/authorize?client_id=t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe&redirect_uri=https://memestream.schleppe.cloud&scope=donations.create
-    const url = new URL('https://streamlabs.com/api/v1.0/authorize')
-    url.searchParams.append('response_type', 'code')
-    url.searchParams.append('client_id', "t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe")
-    url.searchParams.append('redirect_uri', 'http://localhost:3001/auth_request')
-    url.searchParams.append('scope', 'donations.create')
-    window.open(url.href.toString())
-  }
-  
   return (
-    <>
-      <MyHeader username={params.username} nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
-      <button className="auth_button" style={textStyles.inputArea} onClick={sendAuthRequest}/>  
-      <div style={appStyles.mainArea}>
-        <h2>Then click one of these cool dogs...</h2>
-        <QueryCarousel nickname={nickname} message={message} query="dogs"/>
-        <h2>or this trending content...</h2>
-        <TrendingCarousel nickname={nickname} message={message}/>
-        <h2>or scroll through your own desired search term</h2>
-        <img src="https://uploads.codesandbox.io/uploads/user/ce4856ba-2d28-467b-98d7-427cebc27616/ZZBX-logo.gif" width="200" alt="Powered by GIPHY" /> 
-        <input type="text" onChange={e=> updateQuery(e.target.value)} style={textStyles.inputNickname} id="inputQuery" placeholder="happy"/>
-        <QueryGrid nickname={nickname} message={message} query={query}/>
-      </div>  
-    </>
-  );
+    <React.StrictMode>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home registeredStreamers={registeredStreamers}/>}></Route>
+        <Route path=":streamername" element={<StreamerPage registeredStreamers={registeredStreamers}/>}></Route>        
+        <Route path="*"
+        element={
+          <main style={{ padding: "1rem" }}>
+            <p>There's nothing here!</p>
+          </main>
+        }
+        />
+        </Routes>
+      </Router>
+    </React.StrictMode>
+  )
 }
 
 

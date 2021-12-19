@@ -1,0 +1,45 @@
+.homepageGrid {
+    margin:auto;
+    margin-top: 3rem;
+}
+.button-auth {
+  float:right;
+  appearance: none;
+  background-image: radial-gradient(100% 100% at 100% 0, #c2a1c7 0, #7CD1B8 100%);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: rgba(45, 35, 66, .4) 0 3px 4px,rgba(0, 2, 1, 0.521) 0 7px 13px -3px,rgba(0, 3, 20, 0.5) 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-family: "JetBrains Mono",monospace;
+  height: 3rem;
+  width: 11rem;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  margin-right:2rem;
+  padding:1rem;
+  /* padding-left: 16px; */
+  /* padding-right: 16px; */
+  position: relative;
+  text-align: center;
+  text-decoration: underline;
+  transition: box-shadow .15s,transform .15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow,transform;
+  font-size: 13px;
+}
+
+.button-auth:focus {
+  box-shadow: #3c4fe0 0 0 0 1.5px inset, rgba(45, 35, 66, .4) 0 2px 4px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #aaaaac 0 -3px 0 inset;
+}
+
+.button-auth:hover {
+  box-shadow: rgba(45, 35, 66, .4) 0 4px 8px, rgba(45, 35, 66, .3) 0 7px 13px -3px, #1dca65 0 -3px 0 inset;
+  transform: translateY(-2px);
+}

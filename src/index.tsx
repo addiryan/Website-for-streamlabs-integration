@@ -5,26 +5,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route path=":username" element={<App />}/>
-        </Route>
-        
-        <Route path="*"
-        element={
-          <main style={{ padding: "1rem" }}>
-            <p>There's nothing here!</p>
-          </main>
-        }
-        />
-      </Routes>
-      {/* <App /> */}
-    </Router>
-  </React.StrictMode>,
-  document.getElementById('root')
+
+ReactDOM.render(<App />,document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function
