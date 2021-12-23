@@ -83,7 +83,9 @@ app.get('/streamer_info', (req, res) => {
 const startServer = async () => {
   await initializeDatabase(app)
   const port = process.env.SERVER_PORT || 3001
+  app.use("/api")
   await util.promisify(app.listen).bind(app)(port)
+  
   console.log(`Listening on port ${port}`)
 }
 
