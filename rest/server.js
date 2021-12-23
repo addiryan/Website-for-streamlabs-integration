@@ -60,7 +60,7 @@ app.get('/auth_request', (req, auth_res) => {
 //Get a list of all registered streamers
 app.get('/registered_streamers', (req, res) => {
   getRegisteredUsers().then(streamers => {
-    res.set('Access-Control-Allow-Origin', '*');
+    // res.set('Access-Control-Allow-Origin', '*');
     res.status(200).write(JSON.stringify({registeredStreamers:streamers}))
     res.end()
   }).catch(err=> {
@@ -71,7 +71,7 @@ app.get('/registered_streamers', (req, res) => {
 //Get streamer info for frontend, online status, auth key etc..
 app.get('/streamer_info', (req, res) => {
   getAuthKeyForStreamer(req.query.streamername).then(streamer=> {
-    res.set('Access-Control-Allow-Origin', '*');
+    // res.set('Access-Control-Allow-Origin', '*');
     res.status(200).write(JSON.stringify({auth_token:streamer.auth_token}))
     res.end()
   }).catch(err=> {
