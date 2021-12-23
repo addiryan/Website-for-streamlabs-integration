@@ -19,7 +19,7 @@ app.get('/api/auth_request', (req, auth_res) => {
   url.searchParams.append('grant_type', 'authorization_code')
   url.searchParams.append('client_id', "t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe")
   url.searchParams.append('client_secret', 'pbsLOtP2k4FjCX87dKSKcO12juFwwOHnWN21AmaN')
-  url.searchParams.append('redirect_uri', 'http://localhost:3001/auth_request')
+  url.searchParams.append('redirect_uri', 'https://memestream.schleppe.cloud/')
   url.searchParams.append('code', code)
 
   axios({
@@ -46,7 +46,7 @@ app.get('/api/auth_request', (req, auth_res) => {
         insertEntry(userName, displayName, access_token)
         //Redirects to 
         auth_res.status(200)
-        auth_res.redirect(`http://localhost:3000/${displayName}`)
+        auth_res.redirect(`https://memestream.schleppe.cloud/${displayName}`)
         auth_res.end()
         //redirect(200,"/")
       }).catch(err=> {
