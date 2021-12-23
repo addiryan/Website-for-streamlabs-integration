@@ -250,7 +250,7 @@ function StreamerPage(props:mainAppProps) {
   }
 
   function fetchStreamerInfo(streamername:string) {
-    fetch(`http://localhost:3001/api/streamer_info?streamername=${streamername}`)
+    fetch(`/api/streamer_info?streamername=${streamername}`)
     .then((response:any) => {
       return response.json()})
     .then((data:streamerInfo) => {

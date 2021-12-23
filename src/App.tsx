@@ -9,7 +9,7 @@ function App() {
   const [registeredStreamers, setRegisteredStreamers] = useState(initRegisteredStreamers)
 
   useEffect(() =>{
-    fetch('http://localhost:3001/api/registered_streamers')
+    fetch('/api/registered_streamers')
       .then((response:any) => {
         return response.json()})
       .then((data:any) => setRegisteredStreamers(data["registeredStreamers"]))

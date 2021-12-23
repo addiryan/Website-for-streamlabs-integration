@@ -43,7 +43,7 @@ function sendAuthRequest() {
   const url = new URL('https://streamlabs.com/api/v1.0/authorize')
   url.searchParams.append('response_type', 'code')
   url.searchParams.append('client_id', "t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe")
-  url.searchParams.append('redirect_uri', 'http://localhost:3001/api/auth_request')
+  url.searchParams.append('redirect_uri', 'https://memestream.schleppe.cloud/api/auth_request')
   url.searchParams.append('scope', 'alerts.create')
   window.open(url.href.toString())
 }
