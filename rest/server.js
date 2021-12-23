@@ -13,7 +13,7 @@ const app = express()
 app.use(bodyParser.json())
 
 //Authorize my app for new streamer..
-app.get('/auth_request', (req, auth_res) => {
+app.get('/api/auth_request', (req, auth_res) => {
   let code = req.url.split("code=")[1]
   const url = new URL('https://streamlabs.com/api/v1.0/token')
   url.searchParams.append('grant_type', 'authorization_code')
@@ -58,7 +58,7 @@ app.get('/auth_request', (req, auth_res) => {
 });
 
 //Get a list of all registered streamers
-app.get('/registered_streamers', (req, res) => {
+app.get('/api/registered_streamers', (req, res) => {
   getRegisteredUsers().then(streamers => {
     // res.set('Access-Control-Allow-Origin', '*');
     res.status(200).write(JSON.stringify({registeredStreamers:streamers}))
@@ -69,7 +69,7 @@ app.get('/registered_streamers', (req, res) => {
 })
 
 //Get streamer info for frontend, online status, auth key etc..
-app.get('/streamer_info', (req, res) => {
+app.get('/api/streamer_info', (req, res) => {
   getAuthKeyForStreamer(req.query.streamername).then(streamer=> {
     // res.set('Access-Control-Allow-Origin', '*');
     res.status(200).write(JSON.stringify({auth_token:streamer.auth_token}))
@@ -83,7 +83,6 @@ app.get('/streamer_info', (req, res) => {
 const startServer = async () => {
   await initializeDatabase(app)
   const port = process.env.SERVER_PORT || 3001
-  app.use("/api")
   await util.promisify(app.listen).bind(app)(port)
   
   console.log(`Listening on port ${port}`)
