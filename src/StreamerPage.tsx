@@ -104,7 +104,7 @@ function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTML
             )
           } else {
             Swal.fire(
-              'Error',
+              'Aborted',
               'Something went wrong when posting to stream...')
           
           }
