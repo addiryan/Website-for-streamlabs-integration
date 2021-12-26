@@ -89,11 +89,7 @@ function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTML
   selectionConfirmed(nickname, message, gif_url_popup).then(res=> {
     if(res.value===true) {
       //Checks that some time has gone since last request. Rate limiting
-      sendToStreamButtons.fire(
-        'Successfully sent to stream!',
-        'Expect some delay',
-        'success'
-      )
+      
       limiter.check()
       .then((wouldRunNow) => {
         // console.log(wouldRunNow)
@@ -101,9 +97,16 @@ function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTML
           limiter.schedule(() => fetch(url))
         .then((res:any)=> {
           if(res.ok) {
-
+            sendToStreamButtons.fire(
+              'Successfully sent to stream!',
+              'Expect some delay',
+              'success'
+            )
           } else {
-            console.error("Something went wrong when posting alert")
+            Swal.fire(
+              'Error',
+              'Something went wrong when posting to stream...')
+          
           }
         }).then((err:any)=> console.log(err));//).then(checkResponseStatus);
         } else {

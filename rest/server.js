@@ -101,7 +101,7 @@ app.get('/api/post_to_stream', (req, post_res) =>{
         }
     })
   }).catch(err=> {
-    console.error("Something went wrong while fetching auth key for user: ", )
+    console.error("Something went wrong while fetching auth key for user: ", err )
     post_res.ok=false
     post_res.status(500)
     post_res.end()
