@@ -1,13 +1,11 @@
 const express = require('express')
 
 const bodyParser = require('body-parser')
-const util = require("util") 
+const util = require("util")
 const axios = require("axios");
 const fetch = require('node-fetch');
-// var cors = require("cors");
 
 const {initializeDatabase,insertEntry,getRegisteredUsers, getAuthKeyForStreamer} = require("./database");
-const { response } = require('express');
 
 const app = express()
 app.use(bodyParser.json())
@@ -26,25 +24,25 @@ app.get('/api/auth_request', (req, auth_res) => {
     method: "POST",
     url: `${url.origin}${url.pathname}`,
     headers: {
-      Accept: "application/json",      
+      Accept: "application/json",
     },
     data: url.searchParams
   }).then((authResponse) => {
     access_token = authResponse.data.access_token
     refresh_token = authResponse.data.refresh_token
     console.error("access_token: ", access_token)
-    //Fetch user information with the recently aquired access token: 
+    //Fetch user information with the recently aquired access token:
     userUrl = `https://streamlabs.com/api/v1.0/user?access_token=${access_token}`
     fetch(userUrl, {method:"GET", headers:{Accept:"application/json"}})
       .then(res=> {
-        //successful fetch of user data from streamlabs, insert entry with proper username: 
+        //successful fetch of user data from streamlabs, insert entry with proper username:
         return res.json()
       }).then(user=> {
         console.log("user object: ", user)
         userName = user["streamlabs"]["username"]
         displayName = user["twitch"] !== undefined ? user["twitch"]["display_name"]: user["streamlabs"]["display_name"]
         insertEntry(userName, displayName, access_token)
-        //Redirects to 
+        //Redirects to
         auth_res.status(200)
         auth_res.redirect(`https://memestream.schleppe.cloud/${displayName}`)
         auth_res.end()
@@ -80,11 +78,46 @@ app.get('/api/streamer_info', (req, res) => {
   })
 })
 
+app.get('/api/post_to_stream', (req, post_res) =>{
+  const url = "https://streamlabs.com/api/v1.0/alerts"
+  let params = JSON.parse(JSON.stringify(req.query))
+  getAuthKeyForStreamer(req.query.streamername).then(streamer=> {
+    let searchParams = new URLSearchParams(req.query)
+    searchParams.delete("streamername")
+    searchParams.append("access_token", streamer.auth_token)
+
+    console.log(searchParams)
+    fetch(url, {method:"POST", body:searchParams, headers:{'Content-Type': 'application/x-www-form-urlencoded'}})
+    .then(resp=> {
+       console.log("resp: ", resp.status)
+        if(resp.status != 200) {
+            post_res.ok=false
+            post_res.status(500)
+            post_res.end()
+        }
+        else if(resp.ok) {
+            post_res.ok=true
+            post_res.status(200)
+            post_res.end()
+        } else {
+            post_res.ok=false
+            post_res.status(500)
+            post_res.end()
+        }
+    })
+  }).catch(err=> {
+    console.error("Something went wrong while fetching auth key for user: ", )
+    post_res.ok=false
+    post_res.status(500)
+    post_res.end()
+  })
+})
+
 const startServer = async () => {
   await initializeDatabase(app)
   const port = process.env.SERVER_PORT || 3001
   await util.promisify(app.listen).bind(app)(port)
-  
+
   console.log(`Listening on port ${port}`)
 }
 

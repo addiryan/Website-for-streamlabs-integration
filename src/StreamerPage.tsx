@@ -13,7 +13,7 @@ import { mainAppProps, streamerInfo } from "./types";
 import { MainHeader } from "./Home";
 var fetch = require('node-fetch');
 
- 
+
 // Never more than 5 requests running at a time.
 // Wait at least 20s between each request.
 const limiter = new Bottleneck({
@@ -42,7 +42,7 @@ function selectionConfirmed(nickname:string, message:string, gifUrl:string):Prom
   return sendToStreamButtons.fire({
     title: `Nickname: ${nickname}`,
     text: `Message: ${message}`,
-    showCancelButton:true, 
+    showCancelButton:true,
     confirmButtonText:"Send to stream!",
     cancelButtonText:"Cancel",
     confirmButtonColor: '#3085d6',
@@ -70,21 +70,22 @@ function unknownStreamer(streamername:string) {
 }
 
 function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) {
-  const url:string = "https://streamlabs.com/api/v1.0/alerts"
+
+  let url:string = "api/post_to_stream"
+  //const url:string = "https://streamlabs.com/api/v1.0/alerts"
   let gif_url:string = gif.images.original.mp4.includes("?") ? gif.images.original.mp4.split("?")[0] : gif.images.original.mp4
   let gif_url_popup:string = gif.images.original.url.includes("?") ? gif.images.original.url.split("?")[0] : gif.images.original.url
   let nickname:string = props.nickname!="" ? "*"+props.nickname+"*" : "secret admirer"
   let message:string = props.message!="" ? props.message : "love your stream"
   var params = new URLSearchParams();
-  console.error("token: ", props.token)
-  params.append("access_token", props.token);
+  params.append("streamername", props.streamername)
   params.append("type", "donation");
   params.append("message", nickname);
   params.append("user_message", message);
   params.append("duration", "6000");
   params.append("image_href",gif_url);
   e.preventDefault();
-  
+  url += "?" + params.toString()
   selectionConfirmed(nickname, message, gif_url_popup).then(res=> {
     if(res.value===true) {
       //Checks that some time has gone since last request. Rate limiting
@@ -97,31 +98,26 @@ function postToStream(props:CarouselProps, gif:IGif, e:React.SyntheticEvent<HTML
       .then((wouldRunNow) => {
         // console.log(wouldRunNow)
         if(wouldRunNow) {
-          limiter.schedule(() => fetch(url, {
-            method: 'POST',
-            body: params,
-            headers: {  'Content-Type': 'application/x-www-form-urlencoded'}
-            
-          }
-        )).then((res:any)=> {
+          limiter.schedule(() => fetch(url))
+        .then((res:any)=> {
           if(res.ok) {
-    
+
           } else {
-            throw new Error(res)
+            console.error("Something went wrong when posting alert")
           }
         }).then((err:any)=> console.log(err));//).then(checkResponseStatus);
         } else {
           Swal.fire(
             'Timeout',
             'Please wait a bit before sending a new gif')
-        } 
-      }); 
+        }
+      });
     }
   })
 }
 
 function QueryCarousel(props:CarouselProps) {
-  
+
   const onGifClick:any = (gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) => {
     postToStream(props, gif, e)
 
@@ -132,7 +128,7 @@ function QueryCarousel(props:CarouselProps) {
 }
 
 function TrendingCarousel(props:CarouselProps) {
-  
+
   const onGifClick:any = (gif:IGif, e:React.SyntheticEvent<HTMLElement, Event>) => {
     postToStream(props, gif, e)
 
@@ -171,13 +167,13 @@ function QueryGrid(props:CarouselProps) {
             setWidth(width);
           }}
         />
-      
+
     </>
   );
 }
 
 function MyHeader (props:InputPropsWithUpdate) {
-        
+
   return (
     <>
     <div style={appStyles.genericHeader}>
@@ -185,12 +181,12 @@ function MyHeader (props:InputPropsWithUpdate) {
       <h1>{props.streamername ? props.streamername+"'s Meme Stream": "The Meme Stream"}!</h1>
       {/* <p>Click any gif to send it directly to my stream!</p> */}
       <p style={textStyles.formLabel} >Just insert your nickname</p>
-      <div className="input_nickname" style={textStyles.inputArea}>  
+      <div className="input_nickname" style={textStyles.inputArea}>
           <input type="text" value={props.nickname} onChange={e=> props.onChangeNickname(e.target.value)} style={textStyles.inputNickname} id="inputNickname" placeholder="Nickname"/>
       </div>
       <p style={textStyles.formLabel} >And write a funny caption</p>
-      <div className="input_message" style={textStyles.inputArea}>  
-        <textarea style={textStyles.inputMessage} value={props.message} onChange={e=> props.onChangeMessage(e.target.value)} id="inputMessage" placeholder={randomInputMessage} maxLength={155}/>  
+      <div className="input_message" style={textStyles.inputArea}>
+        <textarea style={textStyles.inputMessage} value={props.message} onChange={e=> props.onChangeMessage(e.target.value)} id="inputMessage" placeholder={randomInputMessage} maxLength={155}/>
       </div>
     </div>
   </>
@@ -206,9 +202,9 @@ interface InputPropsWithUpdate {
 }
 
 interface CarouselProps {
+  streamername:string,
   nickname:string,
   message:string,
-  token:string,
   query?:string
 }
 
@@ -217,12 +213,9 @@ function StreamerPage(props:mainAppProps) {
   const [nickname, setNickname] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [query, setQuery] = React.useState("happy")
-  const [auth, setAuth] = React.useState("")
   let params = useParams();
 
   useEffect(() =>{
-    let streamername = params.streamername as string
-    fetchStreamerInfo(streamername)
   },[])
 
   if(params.streamername) {
@@ -234,7 +227,7 @@ function StreamerPage(props:mainAppProps) {
     return unknownStreamer("no username found")
   }
 
-  
+
 
 
   function updateNickname(name:string) {
@@ -249,31 +242,19 @@ function StreamerPage(props:mainAppProps) {
     setQuery(query)
   }
 
-  function fetchStreamerInfo(streamername:string) {
-    fetch(`/api/streamer_info?streamername=${streamername}`)
-    .then((response:any) => {
-      return response.json()})
-    .then((data:streamerInfo) => {
-      setAuth(data.auth_token)
-    })
-    .catch((err:any) => {
-      console.error("Could not fetch data....", err)
-    });
-  }
-  
   return (
     <>
       <MyHeader streamername={params.streamername} nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
       <div style={appStyles.mainArea}>
         <h2>Then click one of these cool dogs...</h2>
-        <QueryCarousel token={auth} nickname={nickname} message={message} query="dogs"/>
+        <QueryCarousel streamername={params.streamername} nickname={nickname} message={message} query="dogs"/>
         <h2>or this trending content...</h2>
-        <TrendingCarousel token={auth} nickname={nickname} message={message}/>
+        <TrendingCarousel streamername={params.streamername} nickname={nickname} message={message}/>
         <h2>or scroll through your own desired search term</h2>
-        <img src="https://uploads.codesandbox.io/uploads/user/ce4856ba-2d28-467b-98d7-427cebc27616/ZZBX-logo.gif" width="200" alt="Powered by GIPHY" /> 
+        <img src="https://uploads.codesandbox.io/uploads/user/ce4856ba-2d28-467b-98d7-427cebc27616/ZZBX-logo.gif" width="200" alt="Powered by GIPHY" />
         <input type="text" onChange={e=> updateQuery(e.target.value)} style={textStyles.inputNickname} id="inputQuery" placeholder="happy"/>
-        <QueryGrid token={auth} nickname={nickname} message={message} query={query}/>
-      </div>  
+        <QueryGrid streamername={params.streamername} nickname={nickname} message={message} query={query}/>
+      </div>
     </>
   );
 }
