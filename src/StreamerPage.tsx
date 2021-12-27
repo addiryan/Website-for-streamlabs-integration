@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from "react";
 import { useParams } from "react-router-dom";
-import { GiphyFetch } from "@giphy/js-fetch-api";
+import type { GiphyFetch } from "@giphy/js-fetch-api";
 import { IGif } from "@giphy/js-types";
 import { Grid, Carousel } from "@giphy/react-components";
 import * as textStyles from "./styles/TextStyles"
@@ -24,7 +24,7 @@ const limiter = new Bottleneck({
 
 
 //const giphyFetch = new GiphyFetch("uqrylcebhFGgaMpRxqk7t2K71skX4F8W");
-const giphyFetch = new GiphyFetch("6fdEqnlWrtgJ0WYK8n2KACAjF7hzPvdU");
+// const giphyFetch = new GiphyFetch("6fdEqnlWrtgJ0WYK8n2KACAjF7hzPvdU");
 const messageTemplates = ["Invading an Olaf like...","Getting killed by the support feels like...","When you die, but blame your support", "Feels bad", "Losing your lane feels like", "DEMACIA", "My mind is telling me no, BUT MY BODY..."]
 const randomInputMessage = messageTemplates[Math.floor(Math.random()*messageTemplates.length)]
 
@@ -126,7 +126,7 @@ function QueryCarousel(props:CarouselProps) {
 
   }
   const fetchGifs = (offset: number) =>
-    giphyFetch.search(props.query? props.query: "dogs", { offset, limit: 10 });
+    props.giphyFetcher.search(props.query? props.query: "dogs", { offset, limit: 10 });
   return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
 }
 
@@ -137,7 +137,7 @@ function TrendingCarousel(props:CarouselProps) {
 
   }
   const fetchGifs = (offset: number) =>
-    giphyFetch.trending({ offset, limit: 10 });
+    props.giphyFetcher.trending({ offset, limit: 10 });
   return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
 }
 
@@ -145,7 +145,7 @@ function TrendingCarousel(props:CarouselProps) {
 function QueryGrid(props:CarouselProps) {
 
   const fetchGifs = (offset: number) =>
-    giphyFetch.search(props.query? props.query: "happy", { offset, limit: 9 });
+    props.giphyFetcher.search(props.query? props.query: "happy", { offset, limit: 9 });
 
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -205,6 +205,7 @@ interface InputPropsWithUpdate {
 }
 
 interface CarouselProps {
+  giphyFetcher:GiphyFetch,
   streamername:string,
   nickname:string,
   message:string,
@@ -230,9 +231,6 @@ function StreamerPage(props:mainAppProps) {
     return unknownStreamer("no username found")
   }
 
-
-
-
   function updateNickname(name:string) {
     setNickname(name);
   }
@@ -250,13 +248,13 @@ function StreamerPage(props:mainAppProps) {
       <MyHeader streamername={params.streamername} nickname={nickname} message={message} onChangeNickname={updateNickname} onChangeMessage={updateMessage}/>
       <div style={appStyles.mainArea}>
         <h2>Then click one of these cool dogs...</h2>
-        <QueryCarousel streamername={params.streamername} nickname={nickname} message={message} query="dogs"/>
+        <QueryCarousel giphyFetcher={props.giphyFetcher as GiphyFetch} streamername={params.streamername} nickname={nickname} message={message} query="dogs"/>
         <h2>or this trending content...</h2>
-        <TrendingCarousel streamername={params.streamername} nickname={nickname} message={message}/>
+        <TrendingCarousel giphyFetcher={props.giphyFetcher as GiphyFetch} streamername={params.streamername} nickname={nickname} message={message}/>
         <h2>or scroll through your own desired search term</h2>
         <img src="https://uploads.codesandbox.io/uploads/user/ce4856ba-2d28-467b-98d7-427cebc27616/ZZBX-logo.gif" width="200" alt="Powered by GIPHY" />
         <input type="text" onChange={e=> updateQuery(e.target.value)} style={textStyles.inputNickname} id="inputQuery" placeholder="happy"/>
-        <QueryGrid streamername={params.streamername} nickname={nickname} message={message} query={query}/>
+        <QueryGrid giphyFetcher={props.giphyFetcher as GiphyFetch} streamername={params.streamername} nickname={nickname} message={message} query={query}/>
       </div>
     </>
   );

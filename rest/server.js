@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const util = require("util")
 const axios = require("axios");
 const fetch = require('node-fetch');
+const {GiphyFetch} = require("@giphy/js-fetch-api")
 
 const {initializeDatabase,insertEntry,getRegisteredUsers, getAuthKeyForStreamer} = require("./database");
 
@@ -74,6 +75,12 @@ app.get('/api/streamer_info', (req, res) => {
     console.error("Something went wrong while fetching streamer info..", err)
     res.status(500).end()
   })
+})
+
+app.get('/api/giphy_fetch', (req, giphy_res) => {
+  const giphyFetch = new GiphyFetch(process.env.GIPHY_FETCH_TOKEN); 
+  giphy_res.status(200)
+  giphy_res.end(JSON.stringify(giphyFetch))
 })
 
 app.get('/api/post_to_stream', (req, post_res) =>{
