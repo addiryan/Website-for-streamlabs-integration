@@ -126,7 +126,7 @@ function QueryCarousel(props:CarouselProps) {
 
   }
   const fetchGifs = (offset: number) =>
-    giphyFetch.search(props.query? props.query: "dogs", { offset, limit: 10 });
+  giphyFetch.search(props.query? props.query: "dogs", { offset, limit: 10 });
   return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
 }
 
@@ -137,7 +137,7 @@ function TrendingCarousel(props:CarouselProps) {
 
   }
   const fetchGifs = (offset: number) =>
-    giphyFetch.trending({ offset, limit: 10 });
+  giphyFetch.trending({ offset, limit: 10 });
   return <Carousel onGifClick={onGifClick} fetchGifs={fetchGifs} gifHeight={200} gutter={6} />;
 }
 
@@ -229,9 +229,6 @@ function StreamerPage(props:mainAppProps) {
   } else {
     return unknownStreamer("no username found")
   }
-
-
-
 
   function updateNickname(name:string) {
     setNickname(name);

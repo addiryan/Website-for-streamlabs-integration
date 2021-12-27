@@ -7,6 +7,7 @@ import StreamerPage from "./StreamerPage";
 function App() {
   let initRegisteredStreamers:string[] = []
   const [registeredStreamers, setRegisteredStreamers] = useState(initRegisteredStreamers)
+  // const [giphyFetcher, setGiphyFetcher] = useState({})
 
   useEffect(() =>{
     fetch('/api/registered_streamers')
@@ -16,6 +17,9 @@ function App() {
       .catch((err:any) => {
         console.error("Could not fetch data....", err)
       });
+    // fetch('/api/giphy_fetch')
+    // .then((giphy_fetch=>{return giphy_fetch.json()}))
+    // .then((giphy:GiphyFetch)=>{setGiphyFetcher(giphy)})
   },[])
 
   return (

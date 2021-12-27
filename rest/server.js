@@ -1,5 +1,5 @@
- const express = require('express')
-
+const express = require('express')
+require('dotenv').config();
 const bodyParser = require('body-parser')
 const util = require("util")
 const axios = require("axios");
@@ -15,8 +15,8 @@ app.get('/api/auth_request', (req, auth_res) => {
   let code = req.url.split("code=")[1]
   const url = new URL('https://streamlabs.com/api/v1.0/token')
   url.searchParams.append('grant_type', 'authorization_code')
-  url.searchParams.append('client_id', "t2dVYGfNu7RgYGWHiuQkzutZ8w5A6S7FUYTnwmpe")
-  url.searchParams.append('client_secret', 'pbsLOtP2k4FjCX87dKSKcO12juFwwOHnWN21AmaN')
+  url.searchParams.append('client_id', process.env.STREAMLABS_CLIENT_ID)
+  url.searchParams.append('client_secret', process.env.STREAMLABS_CLIENT_SECRET)
   url.searchParams.append('redirect_uri', 'https://memestream.schleppe.cloud/api/auth_request')
   url.searchParams.append('code', code)
 
@@ -75,6 +75,12 @@ app.get('/api/streamer_info', (req, res) => {
     res.status(500).end()
   })
 })
+
+// app.get('/api/giphy_fetch', (req, giphy_res) => {
+//   const giphyFetch = new GiphyFetch(process.env.GIPHY_FETCH_TOKEN);
+//   giphy_res.status(200)
+//   giphy_res.end(JSON.stringify(giphyFetch))
+// })
 
 app.get('/api/post_to_stream', (req, post_res) =>{
   const url = "https://streamlabs.com/api/v1.0/alerts"
