@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const util = require("util")
 const axios = require("axios");
 const fetch = require('node-fetch');
+const {GiphyFetch} = require("@giphy/js-fetch-api")
 
 const {initializeDatabase,insertEntry,getRegisteredUsers, getAuthKeyForStreamer} = require("./database");
 

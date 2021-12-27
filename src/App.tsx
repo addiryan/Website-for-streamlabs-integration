@@ -2,7 +2,7 @@ import React, { useState, useEffect}from "react";
 import {BrowserRouter as Router,Route,Routes,Link} from "react-router-dom";
 import Home from "./Home";
 import StreamerPage from "./StreamerPage";
-
+import type { GiphyFetch } from "@giphy/js-fetch-api";
 
 function App() {
   let initRegisteredStreamers:string[] = []
